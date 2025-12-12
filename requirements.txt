@@ -2,3 +2,4 @@ streamlit
 plotly
 networkx
 pandas
+matplotlib
