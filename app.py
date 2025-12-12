@@ -29,43 +29,78 @@ alerts = pd.DataFrame({
 st.dataframe(alerts, use_container_width=True)
 
 # ======================================
-# SECTION 2 — AUTOMATED DATA FLOW MAP
+# SECTION 2 — AUTOMATED DATA FLOW MAPPING
 # ======================================
 st.subheader("🌐 Automated Data Flow Mapping")
+st.markdown("Clean visual showing normal data flow and suspicious exfiltration path.")
 
-st.markdown("This visual shows how data normally flows inside the system, and where a suspicious exfiltration path appears.")
+import plotly.graph_objects as go
 
-# SIMPLE AND SAFE SANKEY NODES
-labels = ["User Login", "Internal App", "Data Server", "Finance DB", "External IP"]
+# Create the flowchart layout
+fig = go.Figure()
 
-# Normal flows (grey)
-source = [0, 1, 2]
-target = [1, 2, 3]
-value  = [1, 1, 1]
-color  = ["#A0A0A0", "#A0A0A0", "#A0A0A0"]  # grey links
+nodes = ["User Login", "Internal App", "Data Server", "Finance DB", "External IP"]
+x_positions = [0, 0.25, 0.50, 0.75, 1.0]
 
-# Add suspicious RED link (Finance DB → External IP)
-source.append(3)
-target.append(4)
-value.append(1)
-color.append("red")
-
-fig = go.Figure(data=[go.Sankey(
-    node=dict(
-        label=labels,
-        pad=20,
-        thickness=20,
-        color="lightblue"
-    ),
-    link=dict(
-        source=source,
-        target=target,
-        value=value,
-        color=color
+# Add normal nodes (grey)
+for i, label in enumerate(nodes[:-1]):
+    fig.add_trace(go.Scatter(
+        x=[x_positions[i]],
+        y=[0.5],
+        mode="text",
+        text=[label],
+        textposition="middle center",
+        textfont=dict(size=16, color="black")
+    ))
+    fig.add_shape(
+        type="rect",
+        x0=x_positions[i]-0.07, y0=0.4,
+        x1=x_positions[i]+0.07, y1=0.6,
+        line=dict(color="black"),
+        fillcolor="#E0E0E0"
     )
-)])
 
-fig.update_layout(title_text="Data Flow Visualization", height=400)
+# Add suspicious node (External IP, red)
+fig.add_trace(go.Scatter(
+    x=[x_positions[-1]],
+    y=[0.5],
+    mode="text",
+    text=[nodes[-1]],
+    textposition="middle center",
+    textfont=dict(size=16, color="white")
+))
+fig.add_shape(
+    type="rect",
+    x0=x_positions[-1]-0.07, y0=0.4,
+    x1=x_positions[-1]+0.07, y1=0.6,
+    line=dict(color="black"),
+    fillcolor="red"
+)
+
+# Add arrows between nodes
+for i in range(len(nodes)-1):
+    fig.add_annotation(
+        x=x_positions[i] + 0.125,
+        y=0.5,
+        ax=x_positions[i] + 0.02,
+        ay=0.5,
+        xref="paper", yref="paper",
+        axref="paper", ayref="paper",
+        showarrow=True,
+        arrowhead=3,
+        arrowsize=1,
+        arrowwidth=2,
+        arrowcolor="black"
+    )
+
+fig.update_layout(
+    height=300,
+    xaxis=dict(showgrid=False, zeroline=False, visible=False),
+    yaxis=dict(showgrid=False, zeroline=False, visible=False),
+    plot_bgcolor='white',
+    paper_bgcolor='white',
+    margin=dict(l=20, r=20, t=40, b=20)
+)
 
 st.plotly_chart(fig, use_container_width=True)
 
