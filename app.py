@@ -33,43 +33,40 @@ st.dataframe(alerts, use_container_width=True)
 # ======================================
 st.subheader("🌐 Automated Data Flow Mapping")
 
-# Define nodes in a fixed order (VERY IMPORTANT)
-nodes = ["User Login", "Internal App", "Data Server", "Finance DB", "External IP"]
+st.markdown("This visual shows how data normally flows inside the system, and where a suspicious exfiltration path appears.")
 
-# Normal + suspicious flows
-source_nodes = ["User Login", "Internal App", "Data Server", "Finance DB"]
-target_nodes = ["Internal App", "Data Server", "Finance DB", "External IP"]
+# SIMPLE AND SAFE SANKEY NODES
+labels = ["User Login", "Internal App", "Data Server", "Finance DB", "External IP"]
 
-# Map node names to indexes for Sankey
-node_index = {name: i for i, name in enumerate(nodes)}
+# Normal flows (grey)
+source = [0, 1, 2]
+target = [1, 2, 3]
+value  = [1, 1, 1]
+color  = ["#A0A0A0", "#A0A0A0", "#A0A0A0"]  # grey links
 
-# Build Sankey links
-sources = [node_index[s] for s in source_nodes]
-targets = [node_index[t] for t in target_nodes]
+# Add suspicious RED link (Finance DB → External IP)
+source.append(3)
+target.append(4)
+value.append(1)
+color.append("red")
 
-# All flows have equal weight (1)
-values = [1, 1, 1, 1]
-
-# Color the last one (External IP) red (suspicious)
-colors = ["gray", "gray", "gray", "red"]
-
-# Build the Sankey diagram
 fig = go.Figure(data=[go.Sankey(
     node=dict(
-        label=nodes,
+        label=labels,
         pad=20,
         thickness=20,
         color="lightblue"
     ),
     link=dict(
-        source=sources,
-        target=targets,
-        value=values,
-        color=colors
+        source=source,
+        target=target,
+        value=value,
+        color=color
     )
 )])
 
 fig.update_layout(title_text="Data Flow Visualization", height=400)
+
 st.plotly_chart(fig, use_container_width=True)
 
 
