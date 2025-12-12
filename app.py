@@ -33,54 +33,33 @@ st.dataframe(alerts, use_container_width=True)
 # ======================================
 st.subheader("🌐 Automated Data Flow Mapping")
 
-G = nx.DiGraph()
-nodes = ["User Login", "Internal App", "Data Server", "Finance DB", "External IP"]
-edges = [
-    ("User Login", "Internal App"),
-    ("Internal App", "Data Server"),
-    ("Data Server", "Finance DB"),
-    ("Finance DB", "External IP")  # flagged data exfil
-]
+# Create simple flow relationships
+flow_data = pd.DataFrame({
+    "Source": ["User Login", "Internal App", "Data Server", "Finance DB"],
+    "Target": ["Internal App", "Data Server", "Finance DB", "External IP"],
+    "Label": ["Normal", "Normal", "Normal", "⚠️ Suspicious"]
+})
 
-G.add_nodes_from(nodes)
-G.add_edges_from(edges)
+# Build Sankey Diagram (safe & supported by Streamlit Cloud)
+fig = go.Figure(data=[go.Sankey(
+    node=dict(
+        pad=20,
+        thickness=20,
+        line=dict(color="black", width=0.5),
+        label=list(set(flow_data["Source"].tolist() + flow_data["Target"].tolist())),
+        color="lightblue"
+    ),
+    link=dict(
+        source=[list(set(flow_data["Source"] + flow_data["Target"])).index(s) for s in flow_data["Source"]],
+        target=[list(set(flow_data["Source"] + flow_data["Target"])).index(t) for t in flow_data["Target"]],
+        value=[1, 1, 1, 1],
+        color=["gray", "gray", "gray", "red"]  # last one is malicious flow
+    )
+)])
 
-pos = nx.spring_layout(G, seed=42)
-
-edge_trace = go.Scatter(
-    x=[],
-    y=[],
-    line=dict(width=1, color='red'),
-    hoverinfo='none',
-    mode='lines'
-)
-
-for edge in G.edges():
-    x0, y0 = pos[edge[0]]
-    x1, y1 = pos[edge[1]]
-    edge_trace['x'] += [x0, x1, None]
-    edge_trace['y'] += [y0, y1, None]
-
-node_trace = go.Scatter(
-    x=[],
-    y=[],
-    text=[],
-    mode='markers+text',
-    textposition="top center",
-    hoverinfo='text',
-    marker=dict(size=30, color='skyblue')
-)
-
-for node in G.nodes():
-    x, y = pos[node]
-    node_trace['x'] += [x]
-    node_trace['y'] += [y]
-    node_trace['text'] += [node]
-
-fig = go.Figure(data=[edge_trace, node_trace])
-fig.update_layout(showlegend=False, height=400)
-
+fig.update_layout(title_text="Data Flow Visualization", height=400)
 st.plotly_chart(fig, use_container_width=True)
+
 
 # ======================================
 # SECTION 3 — COMPLIANCE MONITORING
