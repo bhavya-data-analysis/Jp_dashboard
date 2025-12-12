@@ -33,27 +33,39 @@ st.dataframe(alerts, use_container_width=True)
 # ======================================
 st.subheader("🌐 Automated Data Flow Mapping")
 
-# Create simple flow relationships
-flow_data = pd.DataFrame({
-    "Source": ["User Login", "Internal App", "Data Server", "Finance DB"],
-    "Target": ["Internal App", "Data Server", "Finance DB", "External IP"],
-    "Label": ["Normal", "Normal", "Normal", "⚠️ Suspicious"]
-})
+# Define nodes in a fixed order (VERY IMPORTANT)
+nodes = ["User Login", "Internal App", "Data Server", "Finance DB", "External IP"]
 
-# Build Sankey Diagram (safe & supported by Streamlit Cloud)
+# Normal + suspicious flows
+source_nodes = ["User Login", "Internal App", "Data Server", "Finance DB"]
+target_nodes = ["Internal App", "Data Server", "Finance DB", "External IP"]
+
+# Map node names to indexes for Sankey
+node_index = {name: i for i, name in enumerate(nodes)}
+
+# Build Sankey links
+sources = [node_index[s] for s in source_nodes]
+targets = [node_index[t] for t in target_nodes]
+
+# All flows have equal weight (1)
+values = [1, 1, 1, 1]
+
+# Color the last one (External IP) red (suspicious)
+colors = ["gray", "gray", "gray", "red"]
+
+# Build the Sankey diagram
 fig = go.Figure(data=[go.Sankey(
     node=dict(
+        label=nodes,
         pad=20,
         thickness=20,
-        line=dict(color="black", width=0.5),
-        label=list(set(flow_data["Source"].tolist() + flow_data["Target"].tolist())),
         color="lightblue"
     ),
     link=dict(
-        source=[list(set(flow_data["Source"] + flow_data["Target"])).index(s) for s in flow_data["Source"]],
-        target=[list(set(flow_data["Source"] + flow_data["Target"])).index(t) for t in flow_data["Target"]],
-        value=[1, 1, 1, 1],
-        color=["gray", "gray", "gray", "red"]  # last one is malicious flow
+        source=sources,
+        target=targets,
+        value=values,
+        color=colors
     )
 )])
 
