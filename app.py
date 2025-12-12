@@ -32,77 +32,33 @@ st.dataframe(alerts, use_container_width=True)
 # SECTION 2 — AUTOMATED DATA FLOW MAPPING
 # ======================================
 st.subheader("🌐 Automated Data Flow Mapping")
-st.markdown("Clean visual showing normal data flow and suspicious exfiltration path.")
+st.markdown("Simple and stable visual showing normal data flow and suspicious exfiltration.")
 
-import plotly.graph_objects as go
+import matplotlib.pyplot as plt
 
-# Create the flowchart layout
-fig = go.Figure()
+fig, ax = plt.subplots(figsize=(10, 2))
 
+# Nodes
 nodes = ["User Login", "Internal App", "Data Server", "Finance DB", "External IP"]
-x_positions = [0, 0.25, 0.50, 0.75, 1.0]
+x_positions = [0.1, 0.3, 0.5, 0.7, 0.9]
 
-# Add normal nodes (grey)
-for i, label in enumerate(nodes[:-1]):
-    fig.add_trace(go.Scatter(
-        x=[x_positions[i]],
-        y=[0.5],
-        mode="text",
-        text=[label],
-        textposition="middle center",
-        textfont=dict(size=16, color="black")
-    ))
-    fig.add_shape(
-        type="rect",
-        x0=x_positions[i]-0.07, y0=0.4,
-        x1=x_positions[i]+0.07, y1=0.6,
-        line=dict(color="black"),
-        fillcolor="#E0E0E0"
+# Draw nodes (boxes)
+for x, label in zip(x_positions, nodes):
+    box_color = "red" if label == "External IP" else "lightgray"
+    ax.text(x, 0.5, label, ha="center", va="center", fontsize=12,
+            bbox=dict(boxstyle="round,pad=0.3", fc=box_color))
+
+# Draw arrows between nodes
+for i in range(len(x_positions)-1):
+    ax.annotate(
+        "",
+        xy=(x_positions[i+1]-0.04, 0.5),
+        xytext=(x_positions[i]+0.04, 0.5),
+        arrowprops=dict(arrowstyle="->", lw=2)
     )
 
-# Add suspicious node (External IP, red)
-fig.add_trace(go.Scatter(
-    x=[x_positions[-1]],
-    y=[0.5],
-    mode="text",
-    text=[nodes[-1]],
-    textposition="middle center",
-    textfont=dict(size=16, color="white")
-))
-fig.add_shape(
-    type="rect",
-    x0=x_positions[-1]-0.07, y0=0.4,
-    x1=x_positions[-1]+0.07, y1=0.6,
-    line=dict(color="black"),
-    fillcolor="red"
-)
-
-# Add arrows between nodes
-for i in range(len(nodes)-1):
-    fig.add_annotation(
-        x=x_positions[i] + 0.125,
-        y=0.5,
-        ax=x_positions[i] + 0.02,
-        ay=0.5,
-        xref="paper", yref="paper",
-        axref="paper", ayref="paper",
-        showarrow=True,
-        arrowhead=3,
-        arrowsize=1,
-        arrowwidth=2,
-        arrowcolor="black"
-    )
-
-fig.update_layout(
-    height=300,
-    xaxis=dict(showgrid=False, zeroline=False, visible=False),
-    yaxis=dict(showgrid=False, zeroline=False, visible=False),
-    plot_bgcolor='white',
-    paper_bgcolor='white',
-    margin=dict(l=20, r=20, t=40, b=20)
-)
-
-st.plotly_chart(fig, use_container_width=True)
+ax.set_axis_off()
+st.pyplot(fig)
 
 
 # ======================================
