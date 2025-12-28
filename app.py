@@ -96,7 +96,16 @@ st.markdown("---")
 # ======================================
 # AUTOMATED DATA FLOW MAPPING
 # ======================================
+
 st.subheader("🌐 Automated Data Flow Mapping")
+
+# KPI-style summary row
+c1, c2, c3 = st.columns(3)
+c1.metric("Normal Flows", "2")
+c2.metric("High-Risk Flows", "1")
+c3.metric("Critical Exfiltration Points", "1")
+
+st.markdown("#### Identified Data Movement Paths")
 
 flow = pd.DataFrame({
     "Flow Path": [
@@ -113,12 +122,13 @@ flow = pd.DataFrame({
     ]
 })
 
-st.dataframe(flow, use_container_width=True)
+st.table(flow)
 
-st.info(
-    "Data flow analysis highlights the point of suspicious exfiltration "
-    "from internal systems to an external IP."
+st.caption(
+    "Analysis highlights a high-risk data movement from internal storage to an external IP, "
+    "indicating a potential exfiltration point."
 )
+
 
 # ======================================
 # COMPLIANCE MONITORING
