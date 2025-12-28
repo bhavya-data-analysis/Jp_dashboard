@@ -97,36 +97,56 @@ st.markdown("---")
 # AUTOMATED DATA FLOW MAPPING
 # ======================================
 
+import plotly.graph_objects as go
+
 st.subheader("🌐 Automated Data Flow Mapping")
 
-# KPI-style summary row
-c1, c2, c3 = st.columns(3)
-c1.metric("Normal Flows", "2")
-c2.metric("High-Risk Flows", "1")
-c3.metric("Critical Exfiltration Points", "1")
+labels = [
+    "Employee Login",
+    "Internal Application",
+    "Core Database",
+    "Data Warehouse",
+    "External IP"
+]
 
-st.markdown("#### Identified Data Movement Paths")
+# index mapping
+source = [0, 1, 2, 3]
+target = [1, 2, 3, 4]
+value  = [10, 10, 8, 6]
 
-flow = pd.DataFrame({
-    "Flow Path": [
-        "Employee Login → Internal Application",
-        "Internal Application → Core Database",
-        "Core Database → Data Warehouse",
-        "Data Warehouse → External IP"
-    ],
-    "Risk Level": [
-        "Normal",
-        "Normal",
-        "High Privilege Access",
-        "Suspicious Exfiltration"
-    ]
-})
+colors = [
+    "rgba(100,200,100,0.8)",  # normal
+    "rgba(100,200,100,0.8)",  # normal
+    "rgba(255,165,0,0.8)",    # high privilege
+    "rgba(255,0,0,0.8)"       # exfiltration
+]
 
-st.table(flow)
+fig = go.Figure(go.Sankey(
+    node=dict(
+        pad=20,
+        thickness=20,
+        line=dict(color="black", width=0.5),
+        label=labels
+    ),
+    link=dict(
+        source=source,
+        target=target,
+        value=value,
+        color=colors
+    )
+))
+
+fig.update_layout(
+    title_text="Data Movement Across Systems",
+    font_size=12,
+    height=300
+)
+
+st.plotly_chart(fig, use_container_width=True)
 
 st.caption(
-    "Analysis highlights a high-risk data movement from internal storage to an external IP, "
-    "indicating a potential exfiltration point."
+    "Flow visualization highlights normal internal data movement and a high-risk "
+    "exfiltration path to an external IP."
 )
 
 
