@@ -98,31 +98,28 @@ st.markdown("---")
 # ======================================
 st.subheader("🌐 Automated Data Flow Mapping")
 
-fig, ax = plt.subplots(figsize=(10, 2))
+data_flow = pd.DataFrame({
+    "Source": [
+        "Employee Login",
+        "Internal Application",
+        "Core Database",
+        "Data Warehouse"
+    ],
+    "Destination": [
+        "Internal Application",
+        "Core Database",
+        "Data Warehouse",
+        "External IP"
+    ],
+    "Risk Indicator": [
+        "Normal",
+        "Normal",
+        "High Privilege Access",
+        "Suspicious Exfiltration"
+    ]
+})
 
-nodes = ["Employee Login", "Internal App", "Core Database", "Data Warehouse", "External IP"]
-x = [0.05, 0.25, 0.45, 0.65, 0.85]
-
-for xpos, label in zip(x, nodes):
-    color = "red" if label == "External IP" else "lightgray"
-    ax.text(
-        xpos, 0.5, label,
-        ha="center", va="center",
-        bbox=dict(boxstyle="round,pad=0.3", fc=color)
-    )
-
-for i in range(len(x) - 1):
-    ax.annotate(
-        "",
-        xy=(x[i+1] - 0.04, 0.5),
-        xytext=(x[i] + 0.04, 0.5),
-        arrowprops=dict(arrowstyle="->", lw=2)
-    )
-
-ax.axis("off")
-st.pyplot(fig)
-
-st.markdown("---")
+st.table(data_flow)
 
 # ======================================
 # COMPLIANCE MONITORING
