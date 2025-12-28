@@ -98,20 +98,14 @@ st.markdown("---")
 # ======================================
 st.subheader("🌐 Automated Data Flow Mapping")
 
-data_flow = pd.DataFrame({
-    "Source": [
-        "Employee Login",
-        "Internal Application",
-        "Core Database",
-        "Data Warehouse"
+flow = pd.DataFrame({
+    "Flow Path": [
+        "Employee Login → Internal Application",
+        "Internal Application → Core Database",
+        "Core Database → Data Warehouse",
+        "Data Warehouse → External IP"
     ],
-    "Destination": [
-        "Internal Application",
-        "Core Database",
-        "Data Warehouse",
-        "External IP"
-    ],
-    "Risk Indicator": [
+    "Risk Level": [
         "Normal",
         "Normal",
         "High Privilege Access",
@@ -119,7 +113,12 @@ data_flow = pd.DataFrame({
     ]
 })
 
-st.table(data_flow)
+st.dataframe(flow, use_container_width=True)
+
+st.info(
+    "Data flow analysis highlights the point of suspicious exfiltration "
+    "from internal systems to an external IP."
+)
 
 # ======================================
 # COMPLIANCE MONITORING
